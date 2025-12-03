@@ -342,26 +342,15 @@
         }
 
         function loadCsvText() {
-            // 일반 fetch 우선 시도
-            return fetch('culture_chart.csv')
+            // GitHub Pages에서 절대경로로 fetch
+            return fetch('https://santa-kim.github.io/coaching_tools/culture_chart.csv')
                 .then(res => {
                     if (!res.ok) throw new Error(`HTTP ${res.status}`);
                     return res.text();
                 })
                 .catch(err => {
-                    // file:// 로 열었을 때 fetch가 막히는 경우 XHR로 재시도
-                    return new Promise((resolve, reject) => {
-                        if (location.protocol !== 'file:') {
-                            reject(err);
-                            return;
-                        }
-                        const xhr = new XMLHttpRequest();
-                        xhr.overrideMimeType('text/plain; charset=utf-8');
-                        xhr.open('GET', 'culture_chart.csv', true);
-                        xhr.onload = () => (xhr.status === 0 || xhr.status === 200) ? resolve(xhr.responseText) : reject(new Error(`XHR ${xhr.status}`));
-                        xhr.onerror = () => reject(err);
-                        xhr.send();
-                    });
+                    showMessage('데이터를 불러올 수 없습니다. culture_chart.csv 파일이 GitHub Pages에 정상적으로 배포되어 있는지 확인하세요.', 'red');
+                    throw err;
                 });
         }
 

@@ -1,0 +1,8 @@
+한국어 프롬프트:
+"탑을 아무리 높게 쌓아도,
+옆에서 선풍기(강한 바람)를 틀거나
+책상을 흔드는 사람이 있다면
+무너질 수밖에 없습니다."
+
+영문 번역 (이미지 생성 서비스용):
+"No matter how high you stack the tower of blocks, if someone turns on a fan nearby (strong wind) or shakes the table, it will inevitably collapse. Show a tall, slightly wobbly tower of stacked blocks on a table, with a fan on the left blowing strong gusts toward the tower and a person on the right shaking the table. Include motion lines for wind and shaking, a slightly tense meeting-room atmosphere, soft pastel background, and clear focal composition centered on the tower."

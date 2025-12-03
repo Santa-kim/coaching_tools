@@ -1,0 +1,383 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cultural Relativity Chart</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 1200px;
+            width: 100%;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 600px;
+        }
+        svg {
+            width: 100%;
+            height: 100%;
+        }
+        .label-left {
+            text-anchor: end;
+            font-size: 12px;
+            fill: #1a73e8;
+            font-weight: 700;
+        }
+        .label-category {
+            text-anchor: end;
+            font-size: 14px;
+            fill: #333;
+            font-weight: 600;
+        }
+        .label-right {
+            text-anchor: start;
+            font-size: 13px;
+            fill: #e76f51;
+            font-weight: 700;
+        }
+        .line {
+            fill: none;
+            stroke-width: 2.5;
+            opacity: 0.8;
+        }
+        .dot {
+            stroke: white;
+            stroke-width: 2;
+        }
+        .grid-line {
+            stroke: #e0e0e0;
+            stroke-width: 1;
+            stroke-dasharray: 3,3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Cultural Relativity</h1>
+        <p class="subtitle">Understanding how one culture sees another</p>
+        
+        <div class="legend"></div>
+
+        <div class="chart-container">
+            <svg id="chart"></svg>
+        </div>
+    </div>
+
+    <script>
+        const chartConfig = {
+            questionsLeft: [
+                '직접적 · 저맥락',
+                '직설적 부정 피드백',
+                '수평적 구조, 의견 공유',
+                '업무·성과 중심 신뢰',
+                '대립 감수, 갈등 긍정',
+                '직선적 시간, 계획 중심',
+                '원리·논리 중심 설득',
+                '개인·소수 빠른 결정'
+            ],
+            questionsRight: [
+                '간접적 · 고맥락',
+                '부드럽고 간접적인 피드백',
+                '수직적 구조, 위계 존중',
+                '관계·정서 중심 신뢰',
+                '대립 회피, 조화 중시',
+                '유연한 시간, 상황 의존',
+                '사례·경험 중심 설득',
+                '집단 중심, 합의 중시 결정'
+            ],
+            categories: [
+                '의사소통',
+                '평가 / 피드백',
+                '조직관계 / 리딩',
+                '신뢰 형성',
+                '의견 제기 / 갈등',
+                '일정 / 시간 관리',
+                '설득',
+                '의사결정'
+            ]
+        };
+
+        const svg = document.getElementById('chart');
+        const legendEl = document.querySelector('.legend');
+        const svgWidth = 1000;
+        const svgHeight = 600;
+        svg.setAttribute('viewBox', `0 0 ${svgWidth} ${svgHeight}`);
+
+        const margin = { top: 60, right: 190, bottom: 20, left: 280 };
+        const chartWidth = svgWidth - margin.left - margin.right;
+        const chartHeight = svgHeight - margin.top - margin.bottom;
+
+        const palette = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#95E1D3', '#1E90FF', '#FFA500', '#9B59B6', '#20BF6B', '#F67280', '#2D98DA'];
+
+        function pickColor(index) {
+            if (index < palette.length) return palette[index];
+            const hue = (index * 47) % 360;
+            return `hsl(${hue}, 65%, 55%)`;
+        }
+
+        function isTeamAverage(name) {
+            return /평균/.test(name);
+        }
+
+        function parseLine(line) {
+            const trimmed = line.trim();
+            if (!trimmed) return null;
+            const delimiter = trimmed.includes('\t') ? '\t' : (trimmed.includes(',') ? ',' : null);
+            if (delimiter) {
+                return trimmed.split(delimiter).map(cell => cell.trim());
+            }
+            return trimmed.split(/\s+/);
+        }
+
+        function parseCsv(text) {
+            const lines = text.replace(/\r\n/g, '\n').split('\n').filter(l => l.trim().length > 0);
+            if (!lines.length) return [];
+
+            const rows = lines.map(parseLine).filter(Boolean);
+            const header = rows.shift();
+            const nameColumn = header ? header[0] : '이름';
+
+            return rows
+                .map((cols) => {
+                    const name = cols[0] || nameColumn;
+                    const values = cols.slice(1).map(v => parseFloat(v.replace(',', '.'))).filter(v => !Number.isNaN(v));
+                    return { name, values };
+                })
+                .filter(item => item.values.length > 0);
+        }
+
+        function clearSvg() {
+            while (svg.firstChild) {
+                svg.removeChild(svg.firstChild);
+            }
+        }
+
+        function showMessage(messageText, color = '#555') {
+            clearSvg();
+            const message = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            message.setAttribute('x', svgWidth / 2);
+            message.setAttribute('y', svgHeight / 2);
+            message.setAttribute('text-anchor', 'middle');
+            message.setAttribute('fill', color);
+            message.setAttribute('font-size', '14px');
+            message.textContent = messageText;
+            svg.appendChild(message);
+        }
+
+        function renderLegend(people) {
+            legendEl.innerHTML = '';
+            if (!people.length) return;
+
+            people.forEach((person, idx) => {
+                const color = isTeamAverage(person.name) ? '#000000' : pickColor(idx);
+                const item = document.createElement('div');
+                item.className = 'legend-item';
+
+                const colorDot = document.createElement('div');
+                colorDot.className = 'legend-color';
+                colorDot.style.background = color;
+
+                const label = document.createElement('span');
+                label.textContent = person.name;
+
+                item.appendChild(colorDot);
+                item.appendChild(label);
+                legendEl.appendChild(item);
+            });
+        }
+
+        function drawChart(people) {
+            clearSvg();
+
+            if (!people.length) {
+                showMessage('표시할 데이터가 없습니다.');
+                return;
+            }
+
+            const longest = Math.max(...people.map(p => p.values.length));
+            const dimensionCount = Math.min(
+                chartConfig.categories.length,
+                chartConfig.questionsLeft.length,
+                chartConfig.questionsRight.length,
+                longest
+            );
+
+            if (!Number.isFinite(dimensionCount) || dimensionCount === 0) {
+                showMessage('표시할 데이터가 없습니다.');
+                return;
+            }
+
+            const rowHeight = dimensionCount > 1 ? chartHeight / (dimensionCount - 1) : chartHeight / 2;
+            const gridCount = 7;
+
+            for (let i = 1; i <= gridCount; i++) {
+                const x = margin.left + (i / gridCount) * chartWidth;
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', x);
+                line.setAttribute('y1', margin.top + 18);
+                line.setAttribute('x2', x);
+                line.setAttribute('y2', svgHeight - margin.bottom);
+                line.setAttribute('class', 'grid-line');
+                svg.appendChild(line);
+
+                const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                label.setAttribute('x', x);
+                label.setAttribute('y', margin.top - 16);
+                label.setAttribute('text-anchor', 'middle');
+                label.setAttribute('fill', '#444');
+                label.setAttribute('font-size', '10px');
+                label.textContent = i.toString();
+                svg.appendChild(label);
+            }
+
+            chartConfig.categories.slice(0, dimensionCount).forEach((category, i) => {
+                const y = margin.top + i * rowHeight;
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', 120);
+                text.setAttribute('y', y + 5);
+                text.setAttribute('class', 'label-category');
+                text.textContent = category;
+                svg.appendChild(text);
+            });
+
+            chartConfig.questionsLeft.slice(0, dimensionCount).forEach((q, i) => {
+                const y = margin.top + i * rowHeight;
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', margin.left - 15);
+                text.setAttribute('y', y + 5);
+                text.setAttribute('class', 'label-left');
+                text.textContent = q;
+                svg.appendChild(text);
+            });
+
+            chartConfig.questionsRight.slice(0, dimensionCount).forEach((q, i) => {
+                const y = margin.top + i * rowHeight;
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', svgWidth - margin.right + 15);
+                text.setAttribute('y', y + 5);
+                text.setAttribute('class', 'label-right');
+                text.textContent = q;
+                svg.appendChild(text);
+            });
+
+            people.forEach((person, idx) => {
+                const isAvg = isTeamAverage(person.name);
+                const color = isAvg ? '#000000' : pickColor(idx);
+                const strokeWidth = isAvg ? 4 : 2.5;
+                const dotRadius = isAvg ? 6 : 5;
+                const opacity = isAvg ? 1 : 0.8;
+                let pathData = '';
+
+                person.values.slice(0, dimensionCount).forEach((value, i) => {
+                    const x = margin.left + (value / gridCount) * chartWidth;
+                    const y = margin.top + i * rowHeight;
+                    pathData += i === 0 ? `M ${x} ${y}` : ` L ${x} ${y}`;
+                });
+
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                path.setAttribute('d', pathData);
+                path.setAttribute('class', 'line');
+                path.setAttribute('stroke', color);
+                path.setAttribute('stroke-width', strokeWidth);
+                path.setAttribute('opacity', opacity);
+                svg.appendChild(path);
+
+                person.values.slice(0, dimensionCount).forEach((value, i) => {
+                    const x = margin.left + (value / gridCount) * chartWidth;
+                    const y = margin.top + i * rowHeight;
+                    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                    circle.setAttribute('cx', x);
+                    circle.setAttribute('cy', y);
+                    circle.setAttribute('r', dotRadius);
+                    circle.setAttribute('class', 'dot');
+                    circle.setAttribute('fill', color);
+                    svg.appendChild(circle);
+                });
+            });
+        }
+
+        function loadCsvText() {
+            // 일반 fetch 우선 시도
+            return fetch('culture_chart.csv')
+                .then(res => {
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                    return res.text();
+                })
+                .catch(err => {
+                    // file:// 로 열었을 때 fetch가 막히는 경우 XHR로 재시도
+                    return new Promise((resolve, reject) => {
+                        if (location.protocol !== 'file:') {
+                            reject(err);
+                            return;
+                        }
+                        const xhr = new XMLHttpRequest();
+                        xhr.overrideMimeType('text/plain; charset=utf-8');
+                        xhr.open('GET', 'culture_chart.csv', true);
+                        xhr.onload = () => (xhr.status === 0 || xhr.status === 200) ? resolve(xhr.responseText) : reject(new Error(`XHR ${xhr.status}`));
+                        xhr.onerror = () => reject(err);
+                        xhr.send();
+                    });
+                });
+        }
+
+        async function loadAndRender() {
+            try {
+                const text = await loadCsvText();
+                const people = parseCsv(text);
+                renderLegend(people);
+                drawChart(people);
+            } catch (err) {
+                showMessage('데이터를 불러오지 못했습니다.', 'red');
+                console.error(err);
+            }
+        }
+
+        loadAndRender();
+    </script>
+</body>
+</html>

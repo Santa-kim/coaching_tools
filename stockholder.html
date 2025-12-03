@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stakeholder Mapping Workshop</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;800&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        /* BASE STYLES */
+        :root {
+            --primary-blue: #1B5E9B;
+            --primary-dark: #0D2540;
+            --bg-gray: #F5F7FA;
+            --accent-teal: #0d9488;
+            --accent-red: #ef4444;
+            --accent-yellow: #f59e0b;
+            --text-main: #2C3E50;
+            --border-color: #D4DFE8;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: #FFFFFF;
+            font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 60px;
+            padding: 60px 30px;
+        }
+
+        /* SLIDE CONTAINER SHARED STYLES */
+        .slide {
+            width: 100%;
+            max-width: 1280px;
+            height: 720px; /* 16:9 Aspect Ratio - presentation standard */
+            background: white;
+            border-radius: 2px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            padding: 60px 70px;
+            border-left: 6px solid var(--primary-blue);
+        }
+
+        .slide-header {
+            margin-bottom: 40px;
+            position: relative;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .slide-title {
+            font-size: 52px;
+            font-weight: 800;
+            color: var(--primary-dark);
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        .slide-subtitle {
+            font-size: 22px;
+            color: #64748b;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        /* LAYOUT UTILS */
+        .flex-row { display: flex; gap: 50px; height: 100%; align-items: stretch; }
+        .flex-col { display: flex; flex-direction: column; gap: 25px; }
+        .half { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+        .center-content { justify-content: center; align-items: center; text-align: center; }
+
+        /* SLIDE 1: TITLE */
+        #slide-title {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-blue) 100%);
+            color: white;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            border-left: none;
+            padding: 80px 70px;
+        }
+        #slide-title h1 { 
+            font-size: 88px; 
+            margin-bottom: 30px; 
+            color: white; 
+            letter-spacing: -1px;
+            font-weight: 900;
+        }
+        #slide-title p { 
+            font-size: 28px; 
+            opacity: 0.95; 
+            color: #e2e8f0;
+            line-height: 1.5;
+            font-weight: 400;
+        }
+        .tag-pill {
+            background: rgba(255,255,255,0.25);
+            padding: 12px 35px;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-top: 50px;
+            display: inline-block;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+        }
+
+        /* SLIDE 2: INTRO */
+        .intro-img {
+            width: 100%;
+            height: 380px;
+            object-fit: cover;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+        }
+        .quote-box {
+            border-left: 6px solid var(--primary-blue);
+            padding-left: 35px;
+            font-size: 26px;
+            line-height: 1.7;
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+        .quote-box strong {
+            color: var(--primary-blue);
+            font-weight: 700;
+        }
+
+        /* SLIDE 3: MAPPING ACTIVITY */
+        .step-card {
+            background: linear-gradient(135deg, #F8FBFF 0%, #FFFFFF 100%);
+            border-left: 5px solid var(--primary-blue);
+            border-radius: 8px;
+            padding: 40px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+        .step-card:hover {
+            box-shadow: 0 8px 20px rgba(27, 94, 155, 0.15);
+        }
+        .step-num {
+            font-size: 72px;
+            font-weight: 900;
+            color: var(--primary-blue);
+            margin-bottom: 15px;
+            opacity: 0.15;
+            line-height: 1;
+        }
+        .step-title { 
+            font-size: 28px; 
+            font-weight: 700; 
+            margin-bottom: 18px;
+            color: var(--primary-dark);
+        }
+        .step-desc { 
+            font-size: 18px; 
+            line-height: 1.7; 
+            color: #475569;
+        }
+
+        /* SLIDE 4: THE MATRIX (CSS Grid) */
+        .matrix-container {
+            display: grid;
+            grid-template-columns: 50px 1fr 1fr;
+            grid-template-rows: 1fr 1fr 50px;
+            gap: 15px;
+            height: 420px;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .axis-y { 
+            grid-row: 1 / 3; 
+            writing-mode: vertical-rl; 
+            transform: rotate(180deg); 
+            text-align: center;
+            font-weight: 800;
+            color: #94a3b8;
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            letter-spacing: 2px;
+            font-size: 16px;
+        }
+        .axis-x { 
+            grid-column: 2 / 4; 
+            text-align: center;
+            font-weight: 800;
+            color: #94a3b8;
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            letter-spacing: 2px;
+            font-size: 16px;
+        }
+
+        .quadrant {
+            padding: 28px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        .quadrant:hover { 
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+        }
+        
+        .q-icon { font-size: 48px; margin-bottom: 18px; }
+        .q-title { font-size: 22px; font-weight: 700; margin-bottom: 12px; }
+        .q-desc { font-size: 15px; line-height: 1.5; opacity: 0.88; }
+
+        /* Quadrant Colors */
+        .q1 { 
+            background-color: #FEF3C7; 
+            color: #92400e; 
+            border-color: #FCD34D;
+        }
+        .q2 { 
+            background-color: #DBEAFE; 
+            color: #1e40af; 
+            border-color: #60A5FA;
+        }
+        .q3 { 
+            background-color: #F1F5F9; 
+            color: #64748b; 
+            border-color: #CBD5E1;
+        }
+        .q4 { 
+            background-color: #D1FAE5; 
+            color: #065f46; 
+            border-color: #34D399;
+        }
+
+        /* SLIDE 5: ACTION PLAN */
+        .action-list {
+            list-style: none;
+        }
+        .action-item {
+            background: linear-gradient(135deg, #F8FBFF 0%, #FFFFFF 100%);
+            border: 1px solid var(--border-color);
+            border-left: 5px solid var(--primary-blue);
+            margin-bottom: 20px;
+            padding: 28px;
+            border-radius: 8px;
+            display: flex;
+            align-items: flex-start;
+            font-size: 18px;
+            transition: all 0.3s ease;
+        }
+        .action-item:hover {
+            box-shadow: 0 8px 20px rgba(27, 94, 155, 0.12);
+            transform: translateX(4px);
+        }
+        .action-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--primary-blue);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 25px;
+            color: white;
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+        .action-text strong {
+            color: var(--primary-dark);
+            display: block;
+            margin-bottom: 6px;
+            font-size: 19px;
+        }
+        .action-text span {
+            font-size: 15px;
+            color: #64748b;
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 40px;
+            color: #94a3b8;
+            font-size: 13px;
+            letter-spacing: 0.3px;
+        }
+
+        /* Slide navigation: show one slide at a time */
+        .slide { display: none; }
+        .slide.active { display: flex; }
+
+        /* Navigation buttons */
+        .nav-btn {
+            position: fixed;
+            bottom: 28px;
+            width: 54px;
+            height: 54px;
+            border-radius: 8px;
+            border: none;
+            background: var(--primary-blue);
+            color: #fff;
+            font-size: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 20px rgba(27,94,155,0.18);
+            cursor: pointer;
+            z-index: 9999;
+        }
+        .nav-btn:disabled { opacity: 0.4; cursor: default; }
+        .nav-btn.left { left: 28px; }
+        .nav-btn.right { right: 28px; }
+
+        /* Small screens: reduce sizes */
+        @media (max-width: 720px) {
+            .slide { padding: 28px; }
+            .slide-title { font-size: 36px; }
+            .nav-btn { width: 44px; height: 44px; font-size: 22px; }
+        }
+
+        /* Animated stacking + wrapper */
+        .slides-wrapper { position: relative; width: 100%; max-width: 1280px; height: 720px; }
+        .slide {
+            position: absolute;
+            inset: 0;
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            opacity: 0;
+            transform: translateY(18px) scale(0.995);
+            transition: opacity .45s cubic-bezier(.2,.9,.2,1), transform .45s cubic-bezier(.2,.9,.2,1);
+            pointer-events: none;
+        }
+        .slide.active {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="slides-wrapper">
+
+    <!-- SLIDE 1: Title -->
+    <div class="slide" id="slide-title">
+        <h1>이해관계자 맵<br><span style="font-size: 0.6em; opacity: 0.8;">(Stakeholder Mapping)</span></h1>
+        <p>프로젝트의 성공을 좌우하는<br>우리 주변의 '사람' 분석하기</p>
+        <div class="tag-pill">🎯 Module: Stakeholder Analysis</div>
+    </div>
+
+    <!-- SLIDE 2: Intro -->
+    <div class="slide">
+        <div class="slide-header">
+            <h2 class="slide-title">왜 이 활동을 하나요?</h2>
+            <p class="slide-subtitle">프로젝트는 우리끼리만 잘한다고 성공하지 않습니다</p>
+        </div>
+        <div class="flex-row">
+            <div class="half">
+                <div class="quote-box">
+                    "탑을 아무리 높게 쌓아도,<br>
+                    옆에서 <strong>선풍기(강한 바람)</strong>를 틀거나<br>
+                    <strong>책상을 흔드는 사람</strong>이 있다면<br>
+                    무너질 수밖에 없습니다."
+                </div>
+                <div style="margin-top: 35px; font-size: 18px; color: #64748b; line-height: 1.8;">
+                    <p style="margin-bottom: 14px;"><i class="fa-solid fa-check" style="color: var(--primary-blue); margin-right: 12px;"></i> 우리 탑을 무너뜨릴 위험요소 발견</p>
+                    <p><i class="fa-solid fa-check" style="color: var(--primary-blue); margin-right: 12px;"></i> 든든한 지지 기반(우군) 확보</p>
+                </div>
+            </div>
+            <div class="half">
+                <!-- Local sample image: images/team-discussing.svg -->
+                <img src="images/team-discussing.jpg" class="intro-img" alt="Team discussing stakeholders">
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 3: Steps -->
+    <div class="slide">
+        <div class="slide-header">
+            <h2 class="slide-title">활동 순서</h2>
+        </div>
+        <div class="flex-row" style="gap: 20px;">
+            <div class="half">
+                <div class="step-card">
+                    <div class="step-num">01</div>
+                    <div class="step-title">나열하기 (Brainstorming)</div>
+                    <div class="step-desc">
+                        프로젝트에 영향을 주거나<br>
+                        영향을 받는 모든 사람을<br>
+                        포스트잇에 적습니다.<br>
+                        (상사, 타 부서, 고객, 가족 등)
+                    </div>
+                </div>
+            </div>
+            <div class="half">
+                <div class="step-card">
+                    <div class="step-num">02</div>
+                    <div class="step-title">배치하기 (Mapping)</div>
+                    <div class="step-desc">
+                        두 가지 기준에 따라<br>
+                        포스트잇을 매트릭스에 붙입니다.<br><br>
+                        <strong>X축: 관심도 (Interest)</strong><br>
+                        <strong>Y축: 영향력 (Power)</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 4: The Matrix Strategy -->
+    <div class="slide">
+        <div class="slide-header">
+            <h2 class="slide-title">유형별 대응 전략</h2>
+            <p class="slide-subtitle">어디에 위치하느냐에 따라 우리의 행동이 달라져야 합니다.</p>
+        </div>
+        
+        <div class="matrix-container">
+            <div class="axis-y">영향력 (POWER) ▲</div>
+            
+            <!-- Quadrant 2: High Power / Low Interest -->
+            <div class="quadrant q1">
+                <i class="q-icon fa-solid fa-handshake"></i>
+                <div class="q-title">만족 관리 (Keep Satisfied)</div>
+                <div class="q-desc">영향력은 크지만 관심은 적음.<br>결정적일 때 방해하지 않도록<br>주기적으로 만족도 체크.</div>
+            </div>
+
+            <!-- Quadrant 1: High Power / High Interest -->
+            <div class="quadrant q2">
+                <i class="q-icon fa-solid fa-crown"></i>
+                <div class="q-title">핵심 관리 (Manage Closely)</div>
+                <div class="q-desc">가장 중요한 의사결정권자.<br>즉각 보고, 긴밀한 파트너십,<br>최우선 순위 관리 대상.</div>
+            </div>
+
+            <!-- Quadrant 3: Low Power / Low Interest -->
+            <div class="quadrant q3">
+                <i class="q-icon fa-solid fa-eye"></i>
+                <div class="q-title">최소 모니터링 (Monitor)</div>
+                <div class="q-desc">영향력도 관심도 낮음.<br>과도한 에너지 투입 지양.<br>간헐적 확인.</div>
+            </div>
+
+            <!-- Quadrant 4: Low Power / High Interest -->
+            <div class="quadrant q4">
+                <i class="q-icon fa-solid fa-bullhorn"></i>
+                <div class="q-title">정보 제공 (Keep Informed)</div>
+                <div class="q-desc">힘은 없지만 관심이 많음.<br>잠재적 우군(Supporter).<br>정보를 공유하여 내 편으로.</div>
+            </div>
+
+            <div class="axis-x">관심도 (INTEREST) ▶</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 5: Action Plan -->
+    <div class="slide">
+        <div class="slide-header">
+            <h2 class="slide-title">액션 플랜 (Action Plan)</h2>
+            <p class="slide-subtitle">분석에서 끝내지 말고, 지금 바로 행동을 계획하세요</p>
+        </div>
+        <div class="flex-row">
+            <div class="half" style="display: flex; justify-content: center; align-items: center; position: relative;">
+                <i class="fa-solid fa-clipboard-check" style="font-size: 180px; color: var(--primary-blue); opacity: 0.08;"></i>
+                <div style="position: absolute; text-align: center;">
+                    <h3 style="font-size: 32px; margin-bottom: 15px; color: var(--primary-dark);">Who is your<br>Key Man?</h3>
+                    <p style="font-size: 18px; color: #64748b; line-height: 1.5;">내일 당장 연락해야 할<br>단 한 명은 누구입니까?</p>
+                </div>
+            </div>
+            <div class="half">
+                <ul class="action-list">
+                    <li class="action-item">
+                        <div class="action-icon"><i class="fa-solid fa-user-plus"></i></div>
+                        <div class="action-text">
+                            <strong>숨은 실세 찾기</strong>
+                            <span>공식 조직도에는 없지만, 팀장님에게 영향을 주는 사람은?</span>
+                        </div>
+                    </li>
+                    <li class="action-item">
+                        <div class="action-icon"><i class="fa-solid fa-bolt"></i></div>
+                        <div class="action-text">
+                            <strong>리스크(⚡) 관리</strong>
+                            <span>나와 관계가 좋지 않은 '영향력자'를 어떻게 관리할 것인가?</span>
+                        </div>
+                    </li>
+                    <li class="action-item">
+                        <div class="action-icon"><i class="fa-solid fa-comment-dots"></i></div>
+                        <div class="action-text">
+                            <strong>한 마디 준비하기</strong>
+                            <span>그 사람의 마음을 얻기 위해 던질 첫 마디는?</span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    </div> <!-- .slides-wrapper -->
+
+    <!-- Navigation controls -->
+    <button id="prevBtn" class="nav-btn left" aria-label="Previous slide">‹</button>
+    <button id="nextBtn" class="nav-btn right" aria-label="Next slide">›</button>
+
+    <div id="slideCounter" style="position:fixed; bottom:36px; left:50%; transform:translateX(-50%); background:rgba(12,34,56,0.06); padding:6px 12px; border-radius:999px; font-weight:600; color:var(--primary-dark); z-index:9999; font-size:14px; box-shadow: 0 6px 14px rgba(2,6,23,0.06);">1 / 5</div>
+
+    <div class="footer">
+        Based on Workshop Module Design: Stakeholder Mapping | Created by Facilitator
+    </div>
+
+    <script>
+        (function(){
+            const slides = Array.from(document.querySelectorAll('.slide'));
+            if(!slides.length) return;
+
+            let current = 0;
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const counter = document.getElementById('slideCounter');
+
+            function show(index){
+                if(index < 0) index = 0;
+                if(index >= slides.length) index = slides.length - 1;
+                current = index;
+                slides.forEach((s,i)=> s.classList.toggle('active', i === current));
+                prevBtn.disabled = current === 0;
+                nextBtn.disabled = current === slides.length - 1;
+                if(counter) counter.textContent = `${current+1} / ${slides.length}`;
+                // scroll to top so content aligns (helpful on small screens)
+                window.scrollTo({ top: 0, behavior: 'instant' });
+            }
+
+            prevBtn.addEventListener('click', ()=> show(current - 1));
+            nextBtn.addEventListener('click', ()=> show(current + 1));
+
+            // Keyboard navigation
+            document.addEventListener('keydown', (e)=>{
+                if(e.key === 'ArrowLeft') prevBtn.click();
+                if(e.key === 'ArrowRight') nextBtn.click();
+                if(e.key === 'Home') show(0);
+                if(e.key === 'End') show(slides.length - 1);
+            });
+
+            // Touch swipe support
+            let touchStartX = null;
+            document.addEventListener('touchstart', (e)=>{ touchStartX = e.changedTouches[0].clientX; }, {passive:true});
+            document.addEventListener('touchend', (e)=>{
+                if(touchStartX === null) return;
+                const dx = e.changedTouches[0].clientX - touchStartX;
+                if(Math.abs(dx) > 50){
+                    if(dx > 0) prevBtn.click(); else nextBtn.click();
+                }
+                touchStartX = null;
+            }, {passive:true});
+
+            // Initialize
+            show(0);
+        })();
+    </script>
+
+</body>
+</html>
